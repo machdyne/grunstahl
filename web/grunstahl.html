@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grünstahl</title>
+<style>
+  /* ── Tokens ─────────────────────────────────────────────────────────── */
+  :root {
+    --bg:        #0a0e0a;
+    --surface:   #0f150f;
+    --border:    #1e2b1e;
+    --dim:       #2a3d2a;
+    --muted:     #4a6b4a;
+    --green:     #4dff91;
+    --green-dim: #1a5c35;
+    --amber:     #ffb347;
+    --amber-dim: #5c3d0a;
+    --red:       #ff4d4d;
+    --text:      #c8e6c8;
+    --text-dim:  #5a7a5a;
+    --font-mono: "JetBrains Mono", "Fira Code", "Cascadia Code", ui-monospace, monospace;
+    --font-ui:   "Inter", system-ui, sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Header ─────────────────────────────────────────────────────────── */
+  header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    flex-shrink: 0;
+  }
+
+  .logo {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--green);
+    text-transform: uppercase;
+  }
+  .logo span { color: var(--text-dim); font-weight: 400; }
+
+  #status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--muted);
+    transition: background 0.3s, box-shadow 0.3s;
+    flex-shrink: 0;
+  }
+  #status-dot.connected { background: var(--green); box-shadow: 0 0 8px var(--green); }
+  #status-dot.busy      { background: var(--amber); box-shadow: 0 0 8px var(--amber); animation: pulse 0.6s ease-in-out infinite alternate; }
+  #status-dot.error     { background: var(--red);   box-shadow: 0 0 8px var(--red); }
+  @keyframes pulse { from { opacity:1; } to { opacity:0.3; } }
+
+  #status-text { font-size: 11px; color: var(--text-dim); letter-spacing: 0.05em; }
+  .header-spacer { flex: 1; }
+  #offset-display { font-size: 11px; color: var(--text-dim); letter-spacing: 0.05em; display: none; }
+
+  #unsaved-badge {
+    display: none;
+    font-size: 10px;
+    color: var(--amber);
+    letter-spacing: 0.06em;
+    border: 1px solid rgba(255,179,71,0.3);
+    border-radius: 2px;
+    padding: 2px 6px;
+  }
+
+  /* ── Toolbar ─────────────────────────────────────────────────────────── */
+  .toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    flex-wrap: wrap;
+    flex-shrink: 0;
+  }
+
+  button {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    background: transparent;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+    white-space: nowrap;
+  }
+  button:hover:not(:disabled) { color: var(--green); border-color: var(--green-dim); background: rgba(77,255,145,0.04); }
+  button:disabled { opacity: 0.3; cursor: default; }
+  button.primary  { border-color: var(--green-dim); color: var(--green); background: rgba(77,255,145,0.06); }
+  button.primary:hover:not(:disabled) { background: rgba(77,255,145,0.12); }
+  button.danger:hover:not(:disabled)  { color: var(--red); border-color: rgba(255,77,77,0.4); background: rgba(255,77,77,0.04); }
+
+  .toolbar-sep { width: 1px; height: 18px; background: var(--border); margin: 0 4px; }
+
+  /* ── Tabs ────────────────────────────────────────────────────────────── */
+  .tab-bar {
+    display: none; /* shown when editor is visible */
+    align-items: flex-end;
+    gap: 0;
+    padding: 0 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    flex-shrink: 0;
+  }
+
+  .tab {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 8px 18px;
+    border: 1px solid transparent;
+    border-bottom: none;
+    border-radius: 3px 3px 0 0;
+    background: transparent;
+    color: var(--text-dim);
+    cursor: pointer;
+    margin-bottom: -1px;
+    transition: color 0.15s, background 0.15s, border-color 0.15s;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active {
+    color: var(--green);
+    border-color: var(--border);
+    background: var(--bg);
+  }
+
+  /* ── Binary warning banner ───────────────────────────────────────────── */
+  #binary-warning {
+    display: none;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 24px;
+    background: rgba(255,179,71,0.08);
+    border-bottom: 1px solid rgba(255,179,71,0.2);
+    font-size: 11px;
+    color: var(--amber);
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
+  }
+  #binary-warning .warn-icon { font-size: 14px; flex-shrink: 0; }
+  #binary-warning .warn-dismiss {
+    margin-left: auto;
+    font-size: 10px;
+    color: var(--text-dim);
+    cursor: pointer;
+    padding: 2px 8px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    background: transparent;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  #binary-warning .warn-dismiss:hover { color: var(--amber); border-color: rgba(255,179,71,0.3); }
+
+  /* ── Main ────────────────────────────────────────────────────────────── */
+  main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* ── Connect screen ─────────────────────────────────────────────────── */
+  #connect-screen {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    padding: 48px 24px;
+  }
+  .connect-glyph { font-size: 48px; line-height: 1; color: var(--dim); user-select: none; }
+  .connect-title { font-size: 14px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text); }
+  .connect-sub   { font-size: 11px; color: var(--text-dim); text-align: center; max-width: 420px; line-height: 1.8; }
+  .compat-note   { font-size: 10px; color: var(--text-dim); text-align: center; letter-spacing: 0.04em; }
+
+  /* ── Editor screen ───────────────────────────────────────────────────── */
+  #editor-screen {
+    display: none;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* ── Hex panel ───────────────────────────────────────────────────────── */
+  #panel-hex {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: auto;
+    padding: 16px 24px;
+  }
+  #panel-hex::-webkit-scrollbar { width: 6px; height: 6px; }
+  #panel-hex::-webkit-scrollbar-track { background: transparent; }
+  #panel-hex::-webkit-scrollbar-thumb { background: var(--dim); border-radius: 3px; }
+
+  #hex-grid {
+    display: grid;
+    grid-template-columns: 52px repeat(16, 26px) 16px repeat(16, 9px);
+    gap: 0;
+    width: fit-content;
+    min-width: 100%;
+  }
+
+  .hex-row-offset {
+    color: var(--text-dim); font-size: 11px;
+    padding: 1px 8px 1px 0;
+    letter-spacing: 0.05em;
+    user-select: none;
+    line-height: 1.8;
+  }
+  .hex-cell {
+    font-size: 12px; padding: 1px 3px;
+    text-align: center; cursor: pointer;
+    border-radius: 2px;
+    transition: background 0.1s, color 0.1s;
+    line-height: 1.8; letter-spacing: 0.03em;
+  }
+  .hex-cell:hover    { background: var(--dim); color: var(--green); }
+  .hex-cell.selected { background: var(--green-dim); color: var(--green); outline: 1px solid rgba(77,255,145,0.4); }
+  .hex-cell.modified { color: var(--amber); }
+  .hex-cell.modified.selected { background: rgba(255,179,71,0.15); color: var(--amber); }
+  .hex-cell.zero { color: var(--text-dim); }
+
+  .ascii-cell {
+    font-size: 11px; text-align: center; cursor: pointer;
+    border-radius: 2px; transition: background 0.1s;
+    line-height: 1.8; color: var(--muted);
+  }
+  .ascii-cell:hover    { background: var(--dim); color: var(--green); }
+  .ascii-cell.selected { background: var(--green-dim); color: var(--green); }
+  .ascii-cell.modified { color: var(--amber); }
+
+  /* ── Text panel ──────────────────────────────────────────────────────── */
+  #panel-text {
+    display: none;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+    padding: 16px 24px;
+    gap: 8px;
+  }
+
+  .text-meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
+  }
+  .text-meta span { color: var(--text); }
+
+  #text-editor {
+    flex: 1;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.7;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    padding: 14px 16px;
+    resize: none;
+    outline: none;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    transition: border-color 0.15s;
+  }
+  #text-editor:focus { border-color: var(--green-dim); }
+  #text-editor::-webkit-scrollbar { width: 6px; }
+  #text-editor::-webkit-scrollbar-track { background: transparent; }
+  #text-editor::-webkit-scrollbar-thumb { background: var(--dim); border-radius: 3px; }
+
+  .text-hint {
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
+  }
+
+  /* ── Byte count bar under text editor ───────────────────────────────── */
+  .text-bytecount {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--dim);
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  #text-used-bar {
+    height: 100%;
+    border-radius: 2px 0 0 2px;
+    background: var(--green-dim);
+    transition: width 0.2s, background 0.2s;
+  }
+
+  /* ── Edit popup ──────────────────────────────────────────────────────── */
+  #edit-popup {
+    display: none;
+    position: fixed;
+    z-index: 100;
+    background: var(--surface);
+    border: 1px solid var(--green-dim);
+    border-radius: 4px;
+    padding: 12px 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    min-width: 220px;
+  }
+  .popup-title { font-size: 10px; color: var(--text-dim); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
+  .popup-row   { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .popup-label { font-size: 10px; color: var(--text-dim); width: 36px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .popup-input {
+    font-family: var(--font-mono); font-size: 13px;
+    background: var(--bg); border: 1px solid var(--border); border-radius: 3px;
+    color: var(--green); padding: 3px 8px; width: 70px; outline: none; letter-spacing: 0.08em;
+  }
+  .popup-input:focus { border-color: var(--green-dim); }
+  .popup-btns { display: flex; gap: 6px; margin-top: 10px; }
+
+  /* ── Progress bar ────────────────────────────────────────────────────── */
+  #progress-wrap { display: none; height: 2px; background: var(--dim); flex-shrink: 0; }
+  #progress-bar  { height: 100%; background: var(--green); width: 0%; transition: width 0.1s linear; }
+
+  /* ── Status bar ──────────────────────────────────────────────────────── */
+  .statusbar {
+    display: flex; align-items: center; gap: 16px;
+    padding: 5px 24px;
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+    font-size: 10px; color: var(--text-dim);
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
+  }
+  .statusbar-item { display: flex; align-items: center; gap: 6px; }
+  .statusbar-val  { color: var(--text); }
+  #log-line { flex: 1; text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  #file-input { display: none; }
+</style>
+</head>
+<body>
+
+<!-- ── Header ──────────────────────────────────────────────────────────── -->
+<header>
+  <div class="logo">Grün<span>stahl</span></div>
+  <div id="status-dot"></div>
+  <div id="status-text">disconnected</div>
+  <div class="header-spacer"></div>
+  <div id="offset-display"></div>
+  <div id="unsaved-badge">● unsaved</div>
+</header>
+
+<!-- ── Toolbar ─────────────────────────────────────────────────────────── -->
+<div class="toolbar">
+  <button id="btn-connect" class="primary">Connect device</button>
+  <div class="toolbar-sep"></div>
+  <button id="btn-read"   disabled>Read FRAM</button>
+  <button id="btn-write"  disabled>Write FRAM</button>
+  <div class="toolbar-sep"></div>
+  <button id="btn-import" disabled>Import file</button>
+  <button id="btn-export" disabled>Export file</button>
+  <div class="toolbar-sep"></div>
+  <button id="btn-fill"   disabled class="danger">Fill 0x00</button>
+  <input type="file" id="file-input">
+</div>
+
+<div id="progress-wrap"><div id="progress-bar"></div></div>
+
+<!-- ── Tab bar (shown when editor is visible) ──────────────────────────── -->
+<div class="tab-bar" id="tab-bar">
+  <button class="tab active" id="tab-hex">Hex</button>
+  <button class="tab"        id="tab-text">Text</button>
+</div>
+
+<!-- ── Binary warning banner ───────────────────────────────────────────── -->
+<div id="binary-warning">
+  <span class="warn-icon">⚠</span>
+  <span id="binary-warning-msg"></span>
+  <button class="warn-dismiss" id="warn-dismiss">Dismiss</button>
+</div>
+
+<!-- ── Main ────────────────────────────────────────────────────────────── -->
+<main>
+
+  <!-- Connect screen -->
+  <div id="connect-screen">
+    <div class="connect-glyph">⬡</div>
+    <div class="connect-title">Grünstahl FRAM Interface</div>
+    <div class="connect-sub">
+      Connect a Grünstahl device via USB, then click the button below.<br>
+      Your browser will show a device picker — select <strong>Grünstahl FRAM</strong>.
+    </div>
+    <button id="btn-connect2" class="primary" style="font-size:13px;padding:10px 28px;letter-spacing:0.1em;">
+      Connect device
+    </button>
+    <div class="compat-note">
+      Requires Chrome or Edge 89+ &nbsp;·&nbsp; WebHID &nbsp;·&nbsp; HTTPS or localhost
+    </div>
+  </div>
+
+  <!-- Editor -->
+  <div id="editor-screen">
+
+    <!-- Hex panel -->
+    <div id="panel-hex">
+      <div id="hex-grid"></div>
+    </div>
+
+    <!-- Text panel -->
+    <div id="panel-text">
+      <div class="text-meta">
+        <span>bytes used</span>
+        <span id="txt-bytes-used">—</span>
+        /
+        <span>2048</span>
+        &nbsp;·&nbsp;
+        <span>lines</span>
+        <span id="txt-lines">—</span>
+      </div>
+      <textarea id="text-editor" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+      <div class="text-bytecount"><div id="text-used-bar"></div></div>
+      <div class="text-hint">
+        Text is stored as UTF-8, newlines as LF (0x0A). Remaining bytes are padded with 0x00.
+        Switch to Hex tab to inspect the raw buffer before writing.
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+<!-- ── Edit popup ───────────────────────────────────────────────────────── -->
+<div id="edit-popup">
+  <div class="popup-title">Edit byte — <span id="popup-addr"></span></div>
+  <div class="popup-row">
+    <span class="popup-label">Hex</span>
+    <input class="popup-input" id="popup-hex" maxlength="2" placeholder="00">
+  </div>
+  <div class="popup-row">
+    <span class="popup-label">Dec</span>
+    <input class="popup-input" id="popup-dec" maxlength="3" placeholder="0">
+  </div>
+  <div class="popup-row">
+    <span class="popup-label">Chr</span>
+    <input class="popup-input" id="popup-chr" maxlength="1" placeholder=" " style="width:44px">
+  </div>
+  <div class="popup-btns">
+    <button id="popup-set" class="primary">Set</button>
+    <button id="popup-cancel">Cancel</button>
+  </div>
+</div>
+
+<!-- ── Status bar ───────────────────────────────────────────────────────── -->
+<div class="statusbar">
+  <div class="statusbar-item">FRAM <span class="statusbar-val">2048 B</span></div>
+  <div class="statusbar-item">sel <span class="statusbar-val" id="sb-addr">—</span></div>
+  <div class="statusbar-item">val <span class="statusbar-val" id="sb-val">—</span></div>
+  <div class="statusbar-item" id="sb-modified-wrap" style="display:none">
+    modified <span class="statusbar-val" id="sb-modified">0</span>
+  </div>
+  <div id="log-line"></div>
+</div>
+
+<script>
+'use strict';
+
+/* ── Constants ──────────────────────────────────────────────────────────── */
+const FRAM_SIZE   = 2048;
+const ROWS        = FRAM_SIZE / 16;
+const REPORT_ID   = 0xaa;
+const REPORT_LEN  = 254;
+const MAX_PAYLOAD = 248;
+const USB_VID     = 0x1209;
+const USB_PID     = 0xd003;
+const CMD_PING    = 0x00;
+const CMD_READ    = 0x01;
+const CMD_WRITE   = 0x02;
+
+/* Binary detection thresholds */
+const BIN_NULL_THRESHOLD    = 1;    /* any null byte → suspect binary */
+const BIN_NONPRINT_RATIO    = 0.05; /* >5% non-printable non-whitespace → binary */
+
+/* ── State ──────────────────────────────────────────────────────────────── */
+let device      = null;
+let framData    = new Uint8Array(FRAM_SIZE);
+let modified    = new Uint8Array(FRAM_SIZE);
+let selectedIdx = -1;
+let busy        = false;
+let activeTab   = 'hex';      /* 'hex' | 'text' */
+let warningDismissed = false; /* user dismissed binary warning for this session */
+
+/* ── DOM refs ───────────────────────────────────────────────────────────── */
+const $ = id => document.getElementById(id);
+const statusDot    = $('status-dot');
+const statusText   = $('status-text');
+const progressWrap = $('progress-wrap');
+const progressBar  = $('progress-bar');
+const logLine      = $('log-line');
+const hexGrid      = $('hex-grid');
+const editPopup    = $('edit-popup');
+const tabBar       = $('tab-bar');
+const binaryWarn   = $('binary-warning');
+const textEditor   = $('text-editor');
+
+/* ── Helpers ────────────────────────────────────────────────────────────── */
+function setStatus(state, text) { statusDot.className = state; statusText.textContent = text; }
+
+function log(msg, colour) {
+  logLine.textContent = msg;
+  logLine.style.color = colour || 'var(--text-dim)';
+}
+
+function setProgress(pct) {
+  progressWrap.style.display = pct === null ? 'none' : 'block';
+  if (pct !== null) progressBar.style.width = pct + '%';
+}
+
+function setBusy(b) {
+  busy = b;
+  setStatus(b ? 'busy' : 'connected', b ? 'busy…' : 'connected — ' + (device?.productName || ''));
+  ['btn-read','btn-write','btn-import','btn-export','btn-fill'].forEach(id => $(id).disabled = b);
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+/* ── Binary detection ───────────────────────────────────────────────────── */
+/*
+ * Heuristic: scan bytes up to the first null terminator (treat as text region).
+ * Count null bytes and non-printable, non-whitespace bytes.
+ * Returns an object: { isBinary, nullCount, nonPrintCount, textLength }
+ */
+function analyseBinary(data) {
+  let nullCount = 0;
+  let nonPrintCount = 0;
+  let textLength = data.length; /* length of meaningful content before trailing nulls */
+
+  /* Find last non-null byte to determine content length */
+  let lastNonNull = -1;
+  for (let i = data.length - 1; i >= 0; i--) {
+    if (data[i] !== 0) { lastNonNull = i; break; }
+  }
+  textLength = lastNonNull + 1;
+
+  /* Scan only the content region */
+  for (let i = 0; i < textLength; i++) {
+    const b = data[i];
+    if (b === 0x00) { nullCount++; }
+    else if (b !== 0x09 && b !== 0x0A && b !== 0x0D && (b < 0x20 || b === 0x7F)) {
+      nonPrintCount++;
+    }
+  }
+
+  const total = Math.max(textLength, 1);
+  const isBinary = nullCount >= BIN_NULL_THRESHOLD ||
+                   (nonPrintCount / total) > BIN_NONPRINT_RATIO;
+
+  return { isBinary, nullCount, nonPrintCount, textLength };
+}
+
+/* ── Binary warning ─────────────────────────────────────────────────────── */
+function showBinaryWarning(analysis) {
+  if (warningDismissed) return;
+  let msg = 'Buffer appears to contain binary data ';
+  if (analysis.nullCount > 0)
+    msg += `(${analysis.nullCount} null byte${analysis.nullCount > 1 ? 's' : ''}`;
+  if (analysis.nonPrintCount > 0)
+    msg += (analysis.nullCount > 0 ? ', ' : '(') + `${analysis.nonPrintCount} non-printable byte${analysis.nonPrintCount > 1 ? 's' : ''}`;
+  msg += '). Editing as text and writing to FRAM will overwrite binary data.';
+  $('binary-warning-msg').textContent = msg;
+  binaryWarn.style.display = 'flex';
+}
+
+function hideBinaryWarning() {
+  binaryWarn.style.display = 'none';
+}
+
+$('warn-dismiss').addEventListener('click', () => {
+  warningDismissed = true;
+  hideBinaryWarning();
+});
+
+/* ── Tab switching ──────────────────────────────────────────────────────── */
+function switchTab(tab) {
+  if (tab === activeTab) return;
+
+  /* Leaving text tab → commit text edits to framData */
+  if (activeTab === 'text') commitTextToBuffer();
+
+  activeTab = tab;
+  $('tab-hex').classList.toggle('active', tab === 'hex');
+  $('tab-text').classList.toggle('active', tab === 'text');
+
+  $('panel-hex').style.display  = tab === 'hex'  ? 'block' : 'none';
+  $('panel-text').style.display = tab === 'text' ? 'flex'  : 'none';
+  $('offset-display').style.display = tab === 'hex' ? (selectedIdx >= 0 ? 'block' : 'none') : 'none';
+
+  if (tab === 'text') {
+    hideBinaryWarning();
+    warningDismissed = false; /* re-check each time user opens text tab */
+    loadBufferToText();
+  } else {
+    hideBinaryWarning();
+    renderGrid();
+  }
+}
+
+$('tab-hex').addEventListener('click',  () => switchTab('hex'));
+$('tab-text').addEventListener('click', () => switchTab('text'));
+
+/* ── Text ↔ buffer ──────────────────────────────────────────────────────── */
+
+/*
+ * Load framData → textarea.
+ * We decode bytes as UTF-8 up to the first null byte (end-of-text sentinel).
+ * Non-decodable byte sequences are replaced with the Unicode replacement char (U+FFFD).
+ * The analysis is run first to decide whether to show the binary warning.
+ */
+function loadBufferToText() {
+  const analysis = analyseBinary(framData);
+
+  /* Extract content up to first null or end of array */
+  let contentEnd = framData.indexOf(0x00);
+  if (contentEnd === -1) contentEnd = FRAM_SIZE;
+
+  const contentBytes = framData.subarray(0, contentEnd);
+  let text;
+  try {
+    text = new TextDecoder('utf-8', { fatal: false }).decode(contentBytes);
+  } catch (e) {
+    text = new TextDecoder('latin1').decode(contentBytes);
+  }
+
+  /* Normalise CR+LF → LF for display; bare CR → LF */
+  text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+
+  textEditor.value = text;
+  updateTextMeta();
+
+  if (analysis.isBinary) {
+    showBinaryWarning(analysis);
+  }
+}
+
+/*
+ * Commit textarea → framData.
+ * Encode as UTF-8, LF newlines, pad remainder with 0x00.
+ * Mark all bytes as modified so the user knows a write is needed.
+ */
+function commitTextToBuffer() {
+  let text = textEditor.value;
+
+  /* Encode to UTF-8 bytes */
+  const encoded = new TextEncoder().encode(text);
+
+  if (encoded.length > FRAM_SIZE) {
+    /* Truncate — find safe UTF-8 boundary */
+    let limit = FRAM_SIZE;
+    /* Walk back to find a valid UTF-8 boundary */
+    while (limit > 0 && (encoded[limit] & 0xC0) === 0x80) limit--;
+    const truncated = encoded.subarray(0, limit);
+    framData.set(truncated, 0);
+    framData.fill(0, limit);
+    log(`Text truncated to ${limit} bytes (FRAM full)`, 'var(--amber)');
+  } else {
+    framData.set(encoded, 0);
+    framData.fill(0, encoded.length); /* null-pad the rest */
+  }
+
+  modified.fill(1);
+  updateUnsaved();
+  updateTextMeta();
+}
+
+/* Update the byte-used counter and bar under the text editor */
+function updateTextMeta() {
+  const text    = textEditor.value;
+  const encoded = new TextEncoder().encode(text);
+  const used    = Math.min(encoded.length, FRAM_SIZE);
+  const pct     = (used / FRAM_SIZE) * 100;
+
+  $('txt-bytes-used').textContent = used;
+  $('txt-lines').textContent = text === '' ? 0 : (text.match(/\n/g) || []).length + 1;
+
+  const bar = $('text-used-bar');
+  bar.style.width = pct + '%';
+  bar.style.background = pct > 95 ? 'var(--red)' : pct > 80 ? 'var(--amber)' : 'var(--green-dim)';
+}
+
+textEditor.addEventListener('input', updateTextMeta);
+
+/* ── WebHID protocol ────────────────────────────────────────────────────── */
+function buildRequest(cmd, addr, len, payload) {
+  const data = new Uint8Array(REPORT_LEN);
+  data[0] = 0x00;
+  data[1] = cmd;
+  data[2] = addr & 0xFF;
+  data[3] = (addr >> 8) & 0xFF;
+  data[4] = len;
+  if (payload && len > 0) data.set(payload.subarray(0, len), 5);
+  return data;
+}
+
+async function rpc(cmd, addr, len, payload) {
+  if (!device) throw new Error('No device');
+  const req = buildRequest(cmd, addr, len, payload);
+  await device.sendFeatureReport(REPORT_ID, req);
+  let resp;
+  for (let attempt = 0; attempt < 200; attempt++) {
+    resp = new Uint8Array((await device.receiveFeatureReport(REPORT_ID)).buffer);
+    if (resp[1] === 0x01) break;
+    await sleep(5);
+  }
+  if (!resp || resp[1] !== 0x01) throw new Error('No response from device');
+  if (resp[2] !== 0x01) throw new Error('Device returned error for cmd 0x' + cmd.toString(16));
+  return resp;
+}
+
+/* ── Read / Write FRAM ──────────────────────────────────────────────────── */
+async function readFRAM() {
+  /* If we're in text tab, no pending edits are lost — we're about to overwrite with device data */
+  setBusy(true); setProgress(0); log('Reading FRAM…');
+  try {
+    let done = 0;
+    while (done < FRAM_SIZE) {
+      const chunk = Math.min(MAX_PAYLOAD, FRAM_SIZE - done);
+      const resp  = await rpc(CMD_READ, done, chunk, null);
+      framData.set(resp.subarray(3, 3 + chunk), done);
+      done += chunk;
+      setProgress((done / FRAM_SIZE) * 100);
+    }
+    modified.fill(0);
+    warningDismissed = false;
+    if (activeTab === 'hex') renderGrid();
+    else loadBufferToText();
+    updateUnsaved();
+    log(`Read complete — ${FRAM_SIZE} bytes`, 'var(--green)');
+  } catch (e) {
+    log('Read error: ' + e.message, 'var(--red)');
+    setStatus('error', 'error');
+  } finally {
+    setBusy(false); setProgress(null);
+  }
+}
+
+async function writeFRAM() {
+  /* Flush text editor if active */
+  if (activeTab === 'text') commitTextToBuffer();
+
+  setBusy(true); setProgress(0); log('Writing FRAM…');
+  try {
+    let done = 0;
+    while (done < FRAM_SIZE) {
+      const chunk = Math.min(MAX_PAYLOAD, FRAM_SIZE - done);
+      await rpc(CMD_WRITE, done, chunk, framData.subarray(done, done + chunk));
+      done += chunk;
+      setProgress((done / FRAM_SIZE) * 100);
+    }
+    modified.fill(0);
+    if (activeTab === 'hex') renderGrid();
+    updateUnsaved();
+    log(`Write complete — ${FRAM_SIZE} bytes`, 'var(--green)');
+  } catch (e) {
+    log('Write error: ' + e.message, 'var(--red)');
+    setStatus('error', 'error');
+  } finally {
+    setBusy(false); setProgress(null);
+  }
+}
+
+/* ── Hex grid ───────────────────────────────────────────────────────────── */
+function renderGrid() {
+  hexGrid.innerHTML = '';
+  for (let row = 0; row < ROWS; row++) {
+    const base = row * 16;
+    const off = document.createElement('div');
+    off.className = 'hex-row-offset';
+    off.textContent = base.toString(16).padStart(4, '0').toUpperCase();
+    hexGrid.appendChild(off);
+
+    for (let col = 0; col < 16; col++) {
+      const idx = base + col;
+      const val = framData[idx];
+      const cell = document.createElement('div');
+      cell.className = 'hex-cell' +
+        (modified[idx] ? ' modified' : '') +
+        (val === 0 ? ' zero' : '') +
+        (idx === selectedIdx ? ' selected' : '');
+      cell.dataset.idx = idx;
+      cell.textContent = val.toString(16).padStart(2, '0').toUpperCase();
+      cell.addEventListener('click', () => selectByte(idx));
+      hexGrid.appendChild(cell);
+    }
+
+    const gap = document.createElement('div');
+    gap.className = 'hex-gap';
+    hexGrid.appendChild(gap);
+
+    for (let col = 0; col < 16; col++) {
+      const idx = base + col;
+      const val = framData[idx];
+      const ch  = (val >= 0x20 && val < 0x7f) ? String.fromCharCode(val) : '·';
+      const cell = document.createElement('div');
+      cell.className = 'ascii-cell' +
+        (modified[idx] ? ' modified' : '') +
+        (idx === selectedIdx ? ' selected' : '');
+      cell.dataset.idx = idx;
+      cell.textContent = ch;
+      cell.addEventListener('click', () => selectByte(idx));
+      hexGrid.appendChild(cell);
+    }
+  }
+}
+
+function refreshRow(idx) {
+  const row = Math.floor(idx / 16);
+  const base = row * 16;
+  const rowStart = row * 34;
+  for (let col = 0; col < 16; col++) {
+    const i    = base + col;
+    const val  = framData[i];
+    const hexEl   = hexGrid.children[rowStart + 1 + col];
+    const asciiEl = hexGrid.children[rowStart + 18 + col];
+    hexEl.textContent = val.toString(16).padStart(2, '0').toUpperCase();
+    hexEl.className = 'hex-cell' +
+      (modified[i] ? ' modified' : '') +
+      (val === 0 ? ' zero' : '') +
+      (i === selectedIdx ? ' selected' : '');
+    const ch = (val >= 0x20 && val < 0x7f) ? String.fromCharCode(val) : '·';
+    asciiEl.textContent = ch;
+    asciiEl.className = 'ascii-cell' +
+      (modified[i] ? ' modified' : '') +
+      (i === selectedIdx ? ' selected' : '');
+  }
+}
+
+/* ── Selection ──────────────────────────────────────────────────────────── */
+function selectByte(idx) {
+  const prev = selectedIdx;
+  selectedIdx = idx;
+  if (prev >= 0) refreshRow(prev);
+  refreshRow(idx);
+  const val = framData[idx];
+  $('sb-addr').textContent = '0x' + idx.toString(16).padStart(4,'0').toUpperCase();
+  $('sb-val').textContent  = '0x' + val.toString(16).padStart(2,'0').toUpperCase() + ' (' + val + ')';
+  $('offset-display').style.display = 'block';
+  $('offset-display').textContent   = 'offset 0x' + idx.toString(16).padStart(4,'0').toUpperCase();
+  openPopup(idx);
+}
+
+/* ── Edit popup ─────────────────────────────────────────────────────────── */
+let popupIdx = -1;
+
+function openPopup(idx) {
+  popupIdx = idx;
+  const val = framData[idx];
+  $('popup-addr').textContent = '0x' + idx.toString(16).padStart(4,'0').toUpperCase();
+  $('popup-hex').value = val.toString(16).padStart(2,'0').toUpperCase();
+  $('popup-dec').value = val.toString(10);
+  $('popup-chr').value = (val >= 0x20 && val < 0x7f) ? String.fromCharCode(val) : '';
+
+  const cellEls = hexGrid.querySelectorAll(`.hex-cell[data-idx="${idx}"]`);
+  const ref  = cellEls[0] || hexGrid;
+  const rect = ref.getBoundingClientRect();
+  const popup = editPopup;
+  popup.style.display = 'block';
+  let top  = rect.bottom + 4;
+  let left = rect.left;
+  if (top + 160 > window.innerHeight) top = rect.top - 160;
+  if (left + 220 > window.innerWidth) left = window.innerWidth - 224;
+  popup.style.top  = top  + 'px';
+  popup.style.left = left + 'px';
+  $('popup-hex').focus();
+  $('popup-hex').select();
+}
+
+function closePopup() { editPopup.style.display = 'none'; popupIdx = -1; }
+
+function commitPopup() {
+  if (popupIdx < 0) return;
+  const val = parseInt($('popup-hex').value.trim(), 16);
+  if (isNaN(val) || val < 0 || val > 255) { $('popup-hex').style.borderColor = 'var(--red)'; return; }
+  setByte(popupIdx, val);
+  closePopup();
+}
+
+function setByte(idx, val) {
+  if (framData[idx] === val) return;
+  framData[idx] = val;
+  modified[idx] = 1;
+  refreshRow(idx);
+  updateUnsaved();
+  log(`Set 0x${idx.toString(16).padStart(4,'0').toUpperCase()} = 0x${val.toString(16).padStart(2,'0').toUpperCase()}`);
+}
+
+$('popup-hex').addEventListener('input', () => {
+  const v = parseInt($('popup-hex').value, 16);
+  $('popup-hex').style.borderColor = '';
+  if (!isNaN(v) && v >= 0 && v <= 255) {
+    $('popup-dec').value = v;
+    $('popup-chr').value = (v >= 0x20 && v < 0x7f) ? String.fromCharCode(v) : '';
+  }
+});
+$('popup-dec').addEventListener('input', () => {
+  const v = parseInt($('popup-dec').value, 10);
+  if (!isNaN(v) && v >= 0 && v <= 255) {
+    $('popup-hex').value = v.toString(16).padStart(2,'0').toUpperCase();
+    $('popup-chr').value = (v >= 0x20 && v < 0x7f) ? String.fromCharCode(v) : '';
+  }
+});
+$('popup-chr').addEventListener('input', () => {
+  const c = $('popup-chr').value;
+  if (c.length === 1) {
+    const v = c.charCodeAt(0);
+    $('popup-hex').value = v.toString(16).padStart(2,'0').toUpperCase();
+    $('popup-dec').value = v;
+  }
+});
+$('popup-hex').addEventListener('keydown', e => {
+  if (e.key === 'Enter')  commitPopup();
+  if (e.key === 'Escape') closePopup();
+});
+$('popup-set').addEventListener('click',    commitPopup);
+$('popup-cancel').addEventListener('click', closePopup);
+document.addEventListener('click', e => {
+  if (!editPopup.contains(e.target) && !e.target.closest('.hex-cell') && !e.target.closest('.ascii-cell'))
+    closePopup();
+});
+
+/* ── Unsaved indicator ──────────────────────────────────────────────────── */
+function updateUnsaved() {
+  const count = modified.reduce((s, v) => s + v, 0);
+  $('unsaved-badge').style.display    = count > 0 ? 'block' : 'none';
+  $('sb-modified-wrap').style.display = count > 0 ? 'flex'  : 'none';
+  $('sb-modified').textContent = count;
+}
+
+/* ── Fill ───────────────────────────────────────────────────────────────── */
+$('btn-fill').addEventListener('click', () => {
+  if (!confirm('Fill all 2048 bytes with 0x00?\n\nThis affects the local buffer only — click Write FRAM to commit.')) return;
+  framData.fill(0); modified.fill(1);
+  if (activeTab === 'hex') renderGrid(); else loadBufferToText();
+  updateUnsaved();
+  log('Buffer filled with 0x00');
+});
+
+/* ── Import / Export ────────────────────────────────────────────────────── */
+$('btn-import').addEventListener('click', () => $('file-input').click());
+
+$('file-input').addEventListener('change', async e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const buf = await file.arrayBuffer();
+  const src = new Uint8Array(buf);
+  const len = Math.min(src.length, FRAM_SIZE);
+  framData.set(src.subarray(0, len), 0);
+  if (len < FRAM_SIZE) framData.fill(0, len);
+  modified.fill(1);
+  warningDismissed = false;
+  if (activeTab === 'hex') renderGrid(); else loadBufferToText();
+  updateUnsaved();
+  log(`Imported ${len} bytes from ${file.name}`);
+  e.target.value = '';
+});
+
+$('btn-export').addEventListener('click', () => {
+  if (activeTab === 'text') commitTextToBuffer();
+  const blob = new Blob([framData], { type: 'application/octet-stream' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = 'grunstahl.bin'; a.click();
+  URL.revokeObjectURL(url);
+  log('Exported grunstahl.bin');
+});
+
+/* ── Connect ────────────────────────────────────────────────────────────── */
+function onEditorVisible() {
+  $('connect-screen').style.display = 'none';
+  $('editor-screen').style.display  = 'flex';
+  tabBar.style.display = 'flex';
+  ['btn-read','btn-write','btn-import','btn-export','btn-fill'].forEach(id => $(id).disabled = false);
+}
+
+function onEditorHidden() {
+  $('connect-screen').style.display = 'flex';
+  $('editor-screen').style.display  = 'none';
+  tabBar.style.display = 'none';
+  hideBinaryWarning();
+  ['btn-read','btn-write','btn-import','btn-export','btn-fill'].forEach(id => $(id).disabled = true);
+  $('btn-connect').disabled  = false;
+  $('btn-connect2').disabled = false;
+}
+
+async function connectDevice() {
+  if (!navigator.hid) {
+    alert('WebHID is not available.\n\nUse Chrome or Edge 89+ and serve this file over HTTPS or localhost.');
+    return;
+  }
+  try {
+    const devices = await navigator.hid.requestDevice({
+      filters: [{ vendorId: USB_VID, productId: USB_PID }]
+    });
+    if (!devices.length) { log('No device selected'); return; }
+    device = devices[0];
+    await device.open();
+
+    device.addEventListener('inputreport', () => {});
+    device.addEventListener('disconnect', () => {
+      device = null;
+      setStatus('', 'disconnected');
+      log('Device disconnected', 'var(--amber)');
+      onEditorHidden();
+    });
+
+    setStatus('connected', 'connected — ' + device.productName);
+    log('Connected — reading FRAM…', 'var(--green)');
+    $('btn-connect').disabled  = true;
+    $('btn-connect2').disabled = true;
+    onEditorVisible();
+    await readFRAM();
+  } catch (e) {
+    if (e.name !== 'NotAllowedError')
+      log('Connect error: ' + e.message, 'var(--red)');
+  }
+}
+
+$('btn-connect').addEventListener('click',  connectDevice);
+$('btn-connect2').addEventListener('click', connectDevice);
+$('btn-read').addEventListener('click',    readFRAM);
+$('btn-write').addEventListener('click',   writeFRAM);
+
+/* ── Auto-detect previously granted device ──────────────────────────────── */
+(async () => {
+  if (!navigator.hid) return;
+  const granted = await navigator.hid.getDevices();
+  const prev = granted.find(d => d.vendorId === USB_VID && d.productId === USB_PID);
+  if (prev && !prev.opened)
+    log('Grünstahl found — click Connect to open', 'var(--green)');
+})();
+</script>
+</body>
+</html>
