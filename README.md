@@ -2,6 +2,8 @@
 
 Grünstahl is a USB-C device that provides access to 2 KB of Ferroelectric RAM over USB HID.
 
+![Grünstahl](https://github.com/machdyne/grunstahl/blob/ca5650d2654c76f4da57ea1b40a7fa515e2e3678/grunstahl.png)
+
 This contains schematics, firmware, documentation and a 3D printable case.
 
 See the [product page](https://machdyne.com/product/grunstahl) for more information.
