@@ -60,6 +60,7 @@ Requires: RISC-V GCC toolchain (riscv-none-embed-gcc or riscv32-unknown-elf-gcc)
 
 ## Protocol
 
+```
 255-byte HID feature report, report ID 0xaa.
 
 Request (host to device):
@@ -80,8 +81,9 @@ Response (device to host, polled until [1] == 0x01):
   [3..]  data   read payload (READ only)
 
 Transfers larger than 248 bytes are automatically chunked by hidxfer.
+```
 
-### LLM-generated code
+## LLM-generated code
 
 To the extent that there is LLM-generated code in this repo, it should be space indented. Any space indented code should be carefully audited and then converted to tabs (eventually).
 
