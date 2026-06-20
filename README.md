@@ -46,13 +46,6 @@ Then: sudo udevadm control --reload-rules && sudo udevadm trigger
 ./hidxfer -w data.dat --offset 512
 ```
 
-## Building the Android editor
-
-```bash
-sudo apt update && sudo apt install android-sdk
-cd android && make
-```
-
 ## Building the firmware
 
 Updating the firmware requires a WCH-LinkE or other CH32V003 programmer. The SWIO header is labeled on the board.
