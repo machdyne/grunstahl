@@ -1,0 +1,482 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg">
+
+    <!-- ── Header ──────────────────────────────────────────────────────── -->
+    <LinearLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@color/surface"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="12dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="GRÜNSTAHL"
+            android:fontFamily="monospace"
+            android:textColor="@color/green"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.12" />
+
+        <View
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_marginHorizontal="12dp"
+            android:id="@+id/statusDot"
+            android:background="@drawable/status_dot" />
+
+        <TextView
+            android:id="@+id/statusText"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="@string/status_disconnected"
+            android:fontFamily="monospace"
+            android:textColor="@color/text_dim"
+            android:textSize="11sp" />
+
+        <TextView
+            android:id="@+id/unsavedBadge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="● unsaved"
+            android:fontFamily="monospace"
+            android:textColor="@color/amber"
+            android:textSize="10sp"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="3dp"
+            android:background="@drawable/badge_outline_amber"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+    <!-- ── Divider ─────────────────────────────────────────────────────── -->
+    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/border" />
+
+    <!-- ── Toolbar ─────────────────────────────────────────────────────── -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/surface"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="8dp"
+            android:gravity="center_vertical"
+            android:divider="@drawable/toolbar_separator"
+            android:showDividers="middle">
+
+            <Button
+                android:id="@+id/btnConnect"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="CONNECT"
+                android:fontFamily="monospace"
+                android:textSize="10sp"
+                android:textColor="@color/green"
+                app:strokeColor="@color/green_dim"
+                app:cornerRadius="3dp"
+                android:paddingHorizontal="12dp" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingHorizontal="4dp">
+
+                <Button
+                    android:id="@+id/btnRead"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:text="READ"
+                    android:fontFamily="monospace"
+                    android:textSize="10sp"
+                    android:textColor="@color/text_dim"
+                    app:strokeColor="@color/border"
+                    app:cornerRadius="3dp"
+                    android:paddingHorizontal="12dp"
+                    android:enabled="false" />
+
+                <Button
+                    android:id="@+id/btnWrite"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:layout_marginStart="6dp"
+                    android:text="WRITE"
+                    android:fontFamily="monospace"
+                    android:textSize="10sp"
+                    android:textColor="@color/text_dim"
+                    app:strokeColor="@color/border"
+                    app:cornerRadius="3dp"
+                    android:paddingHorizontal="12dp"
+                    android:enabled="false" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingHorizontal="4dp">
+
+                <Button
+                    android:id="@+id/btnImport"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:text="IMPORT"
+                    android:fontFamily="monospace"
+                    android:textSize="10sp"
+                    android:textColor="@color/text_dim"
+                    app:strokeColor="@color/border"
+                    app:cornerRadius="3dp"
+                    android:paddingHorizontal="12dp"
+                    android:enabled="false" />
+
+                <Button
+                    android:id="@+id/btnExport"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:layout_marginStart="6dp"
+                    android:text="EXPORT"
+                    android:fontFamily="monospace"
+                    android:textSize="10sp"
+                    android:textColor="@color/text_dim"
+                    app:strokeColor="@color/border"
+                    app:cornerRadius="3dp"
+                    android:paddingHorizontal="12dp"
+                    android:enabled="false" />
+
+                <Button
+                    android:id="@+id/btnFill"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:layout_marginStart="6dp"
+                    android:text="FILL 0x00"
+                    android:fontFamily="monospace"
+                    android:textSize="10sp"
+                    android:textColor="@color/text_dim"
+                    app:strokeColor="@color/border"
+                    app:cornerRadius="3dp"
+                    android:paddingHorizontal="12dp"
+                    android:enabled="false" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <!-- ── Progress bar ────────────────────────────────────────────────── -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:progressTint="@color/green"
+        android:progressBackgroundTint="@color/dim"
+        android:visibility="gone" />
+
+    <!-- ── Tab bar ─────────────────────────────────────────────────────── -->
+    <LinearLayout
+        android:id="@+id/tabBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@color/surface"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/tabHex"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/tab_hex"
+            android:fontFamily="monospace"
+            android:textSize="12sp"
+            android:letterSpacing="0.1"
+            android:paddingHorizontal="20dp"
+            android:paddingVertical="10dp"
+            android:textColor="@color/green"
+            android:background="@color/bg" />
+
+        <TextView
+            android:id="@+id/tabText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/tab_text"
+            android:fontFamily="monospace"
+            android:textSize="12sp"
+            android:letterSpacing="0.1"
+            android:paddingHorizontal="20dp"
+            android:paddingVertical="10dp"
+            android:textColor="@color/text_dim"
+            android:background="@color/surface" />
+
+    </LinearLayout>
+
+    <!-- ── Binary warning ──────────────────────────────────────────────── -->
+    <LinearLayout
+        android:id="@+id/binaryWarning"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@color/amber_bg"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="8dp"
+        android:gravity="center_vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="⚠ Buffer contains binary data. Text edits will overwrite it."
+            android:fontFamily="monospace"
+            android:textColor="@color/amber"
+            android:textSize="11sp" />
+
+        <TextView
+            android:id="@+id/warnDismiss"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="DISMISS"
+            android:fontFamily="monospace"
+            android:textColor="@color/text_dim"
+            android:textSize="10sp"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="4dp"
+            android:background="@drawable/outline_dim"
+            android:clickable="true"
+            android:focusable="true" />
+
+    </LinearLayout>
+
+    <!-- ── Connect screen ──────────────────────────────────────────────── -->
+    <LinearLayout
+        android:id="@+id/connectScreen"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="32dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="⬡"
+            android:textSize="56sp"
+            android:textColor="@color/dim"
+            android:layout_marginBottom="24dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="GRÜNSTAHL FRAM"
+            android:fontFamily="monospace"
+            android:textColor="@color/text"
+            android:textSize="16sp"
+            android:letterSpacing="0.1"
+            android:layout_marginBottom="12dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Connect a Grünstahl device via USB-C OTG,\nthen tap the button below."
+            android:fontFamily="monospace"
+            android:textColor="@color/text_dim"
+            android:textSize="12sp"
+            android:gravity="center"
+            android:lineSpacingMultiplier="1.5"
+            android:layout_marginBottom="28dp" />
+
+        <Button
+            android:id="@+id/btnConnect2"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:text="CONNECT DEVICE"
+            android:fontFamily="monospace"
+            android:textColor="@color/green"
+            android:textSize="13sp"
+            android:paddingHorizontal="28dp"
+            app:strokeColor="@color/green_dim"
+            app:cornerRadius="3dp" />
+
+    </LinearLayout>
+
+    <!-- ── Editor screen ───────────────────────────────────────────────── -->
+    <FrameLayout
+        android:id="@+id/editorScreen"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:visibility="gone">
+
+        <!-- Hex panel -->
+        <ScrollView
+            android:id="@+id/panelHex"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="vertical">
+
+            <HorizontalScrollView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scrollbars="horizontal">
+
+                <com.grunstahl.fram.HexGridView
+                    android:id="@+id/hexGrid"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="12dp" />
+
+            </HorizontalScrollView>
+        </ScrollView>
+
+        <!-- Text panel -->
+        <LinearLayout
+            android:id="@+id/panelText"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="12dp"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingBottom="8dp">
+
+                <TextView
+                    android:id="@+id/txtBytesUsed"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="0 / 2048 bytes"
+                    android:fontFamily="monospace"
+                    android:textColor="@color/text_dim"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:id="@+id/txtLines"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0 lines"
+                    android:fontFamily="monospace"
+                    android:textColor="@color/text_dim"
+                    android:textSize="11sp" />
+
+            </LinearLayout>
+
+            <EditText
+                android:id="@+id/textEditor"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:background="@drawable/text_editor_bg"
+                android:fontFamily="monospace"
+                android:textColor="@color/text"
+                android:textSize="13sp"
+                android:lineSpacingMultiplier="1.5"
+                android:padding="14dp"
+                android:gravity="top|start"
+                android:inputType="textMultiLine|textNoSuggestions"
+                android:scrollbars="vertical"
+                android:textCursorDrawable="@drawable/cursor_green"
+                android:overScrollMode="never" />
+
+            <!-- Byte usage bar -->
+            <ProgressBar
+                android:id="@+id/textUsedBar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:layout_marginTop="8dp"
+                android:progressTint="@color/green_dim"
+                android:progressBackgroundTint="@color/dim"
+                android:max="2048" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="UTF-8 · LF newlines · padded with 0x00"
+                android:fontFamily="monospace"
+                android:textColor="@color/text_dim"
+                android:textSize="10sp" />
+
+        </LinearLayout>
+
+    </FrameLayout>
+
+    <!-- ── Status bar ──────────────────────────────────────────────────── -->
+    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/border" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@color/surface"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="6dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/sbAddr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="—"
+            android:fontFamily="monospace"
+            android:textColor="@color/text_dim"
+            android:textSize="10sp" />
+
+        <TextView
+            android:id="@+id/sbVal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text=""
+            android:fontFamily="monospace"
+            android:textColor="@color/text_dim"
+            android:textSize="10sp" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="" />
+
+        <TextView
+            android:id="@+id/logLine"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:fontFamily="monospace"
+            android:textColor="@color/text_dim"
+            android:textSize="10sp"
+            android:maxLines="1"
+            android:ellipsize="start" />
+
+    </LinearLayout>
+
+</LinearLayout>

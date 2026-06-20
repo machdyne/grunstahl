@@ -1,0 +1,43 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.grunstahl.fram'
+    compileSdk 34
+    buildToolsVersion "34.0.0"
+
+    defaultConfig {
+        applicationId "com.grunstahl.fram"
+        minSdk 26          // Android 8.0 — UsbManager API stable, controlTransfer reliable
+        targetSdk 34
+        versionCode 1
+        versionName "1.0.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false   // sideloaded APK — keep it simple, no ProGuard
+            signingConfig signingConfigs.debug  // debug-signed for sideloading
+        }
+        debug {
+            applicationIdSuffix ".debug"
+            debuggable true
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    buildFeatures {
+        viewBinding true
+    }
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+}

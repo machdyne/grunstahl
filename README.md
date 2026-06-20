@@ -10,7 +10,7 @@ See the [product page](https://machdyne.com/product/grunstahl) for more informat
 
 ## Software
 
-The 'hidxfer' utility or the WebHID-based hex/text editor can be used to access the data.
+The 'hidxfer' utility or the WebHID-based hex/text editor can be used to access the data. There is also a native Android version of the hex/text editor.
 
 ## Building hidxfer (Linux)
 
@@ -44,6 +44,13 @@ Then: sudo udevadm control --reload-rules && sudo udevadm trigger
 
 # Write a file to FRAM starting at offset 512
 ./hidxfer -w data.dat --offset 512
+```
+
+## Building the Android editor
+
+```bash
+sudo apt update && sudo apt install android-sdk
+cd android && make
 ```
 
 ## Building the firmware

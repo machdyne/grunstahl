@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Grünstahl</string>
+    <string name="connect">Connect Device</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="read_fram">Read FRAM</string>
+    <string name="write_fram">Write FRAM</string>
+    <string name="tab_hex">HEX</string>
+    <string name="tab_text">TEXT</string>
+    <string name="bytes_used">%1$d / 2048 bytes</string>
+    <string name="lines_count">%1$d lines</string>
+    <string name="status_disconnected">Disconnected</string>
+    <string name="status_connected">Connected</string>
+    <string name="status_busy">Busy…</string>
+    <string name="binary_warning">Buffer contains binary data. Text edits will overwrite it.</string>
+    <string name="fill_confirm">Fill all 2048 bytes with 0x00?\n\nThis only affects the local buffer — tap Write FRAM to commit.</string>
+    <string name="fill_confirm_yes">Fill</string>
+    <string name="cancel">Cancel</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="export_filename">grunstahl.bin</string>
+    <string name="usb_permission_denied">USB permission denied</string>
+    <string name="no_device">No Grünstahl device found</string>
+</resources>

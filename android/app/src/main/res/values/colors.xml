@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg">#0a0e0a</color>
+    <color name="surface">#0f150f</color>
+    <color name="border">#1e2b1e</color>
+    <color name="dim">#2a3d2a</color>
+    <color name="muted">#4a6b4a</color>
+    <color name="green">#4dff91</color>
+    <color name="green_dim">#1a5c35</color>
+    <color name="amber">#ffb347</color>
+    <color name="amber_bg">#1a0f00</color>
+    <color name="red">#ff4d4d</color>
+    <color name="text">#c8e6c8</color>
+    <color name="text_dim">#5a7a5a</color>
+    <color name="hex_zero">#3a5a3a</color>
+    <color name="hex_modified">#ffb347</color>
+    <color name="hex_selected_bg">#1a5c35</color>
+    <color name="hex_selected_text">#4dff91</color>
+</resources>

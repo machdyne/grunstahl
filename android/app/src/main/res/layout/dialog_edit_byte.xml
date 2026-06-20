@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:background="@color/surface">
+
+    <TextView
+        android:id="@+id/dialogAddr"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Edit byte — 0x0000"
+        android:fontFamily="monospace"
+        android:textColor="@color/text_dim"
+        android:textSize="11sp"
+        android:letterSpacing="0.08"
+        android:textAllCaps="true"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Hex field -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="10dp">
+
+        <TextView
+            android:layout_width="44dp"
+            android:layout_height="wrap_content"
+            android:text="HEX"
+            android:fontFamily="monospace"
+            android:textColor="@color/text_dim"
+            android:textSize="10sp" />
+
+        <EditText
+            android:id="@+id/fieldHex"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="monospace"
+            android:textColor="@color/green"
+            android:textSize="14sp"
+            android:inputType="textNoSuggestions"
+            android:maxLength="2"
+            android:hint="00"
+            android:textColorHint="@color/text_dim"
+            android:background="@drawable/input_bg" />
+
+    </LinearLayout>
+
+    <!-- Dec field -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="10dp">
+
+        <TextView
+            android:layout_width="44dp"
+            android:layout_height="wrap_content"
+            android:text="DEC"
+            android:fontFamily="monospace"
+            android:textColor="@color/text_dim"
+            android:textSize="10sp" />
+
+        <EditText
+            android:id="@+id/fieldDec"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="monospace"
+            android:textColor="@color/green"
+            android:textSize="14sp"
+            android:inputType="number"
+            android:maxLength="3"
+            android:hint="0"
+            android:textColorHint="@color/text_dim"
+            android:background="@drawable/input_bg" />
+
+    </LinearLayout>
+
+    <!-- Char field -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="20dp">
+
+        <TextView
+            android:layout_width="44dp"
+            android:layout_height="wrap_content"
+            android:text="CHR"
+            android:fontFamily="monospace"
+            android:textColor="@color/text_dim"
+            android:textSize="10sp" />
+
+        <EditText
+            android:id="@+id/fieldChr"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="monospace"
+            android:textColor="@color/green"
+            android:textSize="14sp"
+            android:inputType="text|textNoSuggestions"
+            android:maxLength="1"
+            android:background="@drawable/input_bg" />
+
+    </LinearLayout>
+
+    <!-- Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end">
+
+        <Button
+            android:id="@+id/dialogCancel"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:text="CANCEL"
+            android:fontFamily="monospace"
+            android:textColor="@color/text_dim"
+            android:textSize="11sp" />
+
+        <Button
+            android:id="@+id/dialogSet"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:layout_marginStart="8dp"
+            android:text="SET"
+            android:fontFamily="monospace"
+            android:textColor="@color/green"
+            android:textSize="11sp"
+            app:strokeColor="@color/green_dim"
+            app:cornerRadius="3dp"
+            xmlns:app="http://schemas.android.com/apk/res-auto"/>
+
+    </LinearLayout>
+
+</LinearLayout>

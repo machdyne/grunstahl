@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Matches Grünstahl FRAM device.
+    VID 0x1209 = pid.codes open VID
+    PID 0xD003 = Grünstahl
+-->
+<resources>
+    <usb-device vendor-id="4617" product-id="53251" />
+</resources>
+<!-- vendor-id="4617"  = 0x1209 decimal -->
+<!-- product-id="53251" = 0xD003 decimal -->
