@@ -12,16 +12,6 @@ See the [product page](https://machdyne.com/product/grunstahl) for more informat
 
 The 'hidxfer' utility or the WebHID-based hex/text editor can be used to access the data.
 
-## Building the firmware
-
-```bash
-cd fw
-make        # builds grunstahl.bin
-make flash  # flashes via WCH-LinkE (minichlink)
-```
-
-Requires: RISC-V GCC toolchain (riscv-none-embed-gcc or riscv32-unknown-elf-gcc).
-
 ## Building hidxfer (Linux)
 
 ```bash
@@ -55,6 +45,18 @@ Then: sudo udevadm control --reload-rules && sudo udevadm trigger
 # Write a file to FRAM starting at offset 512
 ./hidxfer -w data.dat --offset 512
 ```
+
+## Building the firmware
+
+Updating the firmware requires a WCH-LinkE or other CH32V003 programmer. The SWIO header is labeled on the board.
+
+```bash
+cd fw
+make        # builds grunstahl.bin
+make flash  # flashes via WCH-LinkE (minichlink)
+```
+
+Requires: RISC-V GCC toolchain (riscv-none-embed-gcc or riscv32-unknown-elf-gcc).
 
 ## Protocol
 
