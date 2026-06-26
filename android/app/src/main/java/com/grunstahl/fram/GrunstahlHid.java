@@ -39,8 +39,8 @@ import java.util.Arrays;
  */
 public class GrunstahlHid implements AutoCloseable {
 
-    public static final int USB_VID = 0x1209;
-    public static final int USB_PID = 0xD003;
+    public static final int USB_VID = 0x16c0;
+    public static final int USB_PID = 0x05df;
 
     public static final int FRAM_SIZE   = 2048;
     public static final int MAX_PAYLOAD = 248;
