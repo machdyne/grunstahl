@@ -42,8 +42,8 @@
 
 /* ── Device identity ────────────────────────────────────────────────────── */
 
-#define USB_VID  0x1209
-#define USB_PID  0xd003
+#define USB_VID  0x16c0
+#define USB_PID  0x05df
 
 /* ── Protocol constants ─────────────────────────────────────────────────── */
 
