@@ -125,7 +125,13 @@ public class MainActivity extends AppCompatActivity {
     private void handleIntent(Intent intent) {
         if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(intent.getAction())) {
             UsbDevice device = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-            if (device != null) requestPermissionAndConnect(device);
+            // Auto-connect on plug-in only if it looks like Grünstahl (known VID/PID).
+            // For unknown HID devices plugged in, let the user tap Connect to pick.
+            if (device != null &&
+                    device.getVendorId()  == GrunstahlHid.USB_VID &&
+                    device.getProductId() == GrunstahlHid.USB_PID) {
+                requestPermissionAndConnect(device);
+            }
         }
     }
 
@@ -173,15 +179,51 @@ public class MainActivity extends AppCompatActivity {
     /* ── Connect ─────────────────────────────────────────────────────────── */
 
     private void connectClicked() {
-        // Find Grünstahl device
+        // Collect all USB HID devices (class 3)
+        java.util.List<UsbDevice> hidDevices = new java.util.ArrayList<>();
         for (UsbDevice device : usbManager.getDeviceList().values()) {
-            if (device.getVendorId()  == GrunstahlHid.USB_VID &&
-                device.getProductId() == GrunstahlHid.USB_PID) {
-                requestPermissionAndConnect(device);
-                return;
-            }
+            if (isHidDevice(device)) hidDevices.add(device);
         }
-        setLog(getString(R.string.no_device), 0xFFff4d4d);
+
+        if (hidDevices.isEmpty()) {
+            setLog(getString(R.string.no_device), 0xFFff4d4d);
+            return;
+        }
+
+        // If exactly one HID device, connect directly.
+        // If multiple, show a picker so the user can choose.
+        if (hidDevices.size() == 1) {
+            requestPermissionAndConnect(hidDevices.get(0));
+        } else {
+            showDevicePicker(hidDevices);
+        }
+    }
+
+    private boolean isHidDevice(UsbDevice device) {
+        // Check device class or any interface class == HID (3)
+        if (device.getDeviceClass() == android.hardware.usb.UsbConstants.USB_CLASS_HID) return true;
+        for (int i = 0; i < device.getInterfaceCount(); i++) {
+            if (device.getInterface(i).getInterfaceClass() ==
+                    android.hardware.usb.UsbConstants.USB_CLASS_HID) return true;
+        }
+        return false;
+    }
+
+    private void showDevicePicker(java.util.List<UsbDevice> devices) {
+        String[] labels = new String[devices.size()];
+        for (int i = 0; i < devices.size(); i++) {
+            UsbDevice d = devices.get(i);
+            String name = d.getProductName();
+            if (name == null || name.isEmpty()) name = "Unknown device";
+            labels[i] = String.format("%s  [%04X:%04X]",
+                    name, d.getVendorId(), d.getProductId());
+        }
+        new AlertDialog.Builder(this)
+                .setTitle("Select USB HID device")
+                .setItems(labels, (dialog, which) ->
+                        requestPermissionAndConnect(devices.get(which)))
+                .setNegativeButton(R.string.cancel, null)
+                .show();
     }
 
     private void requestPermissionAndConnect(UsbDevice device) {

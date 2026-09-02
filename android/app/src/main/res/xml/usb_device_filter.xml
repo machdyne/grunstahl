@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Matches Grünstahl FRAM device.
-    VID 0x1209 = pid.codes open VID
-    PID 0xD003 = Grünstahl
+    Match any USB HID device (class 3).
+    We don't filter by VID/PID here — that caused devices with slightly
+    different enumeration to be silently ignored. Instead, MainActivity
+    identifies Grünstahl by VID/PID after the user selects it, or
+    auto-connects if only one HID device is present.
 -->
 <resources>
-    <usb-device vendor-id="4617" product-id="53251" />
+    <usb-device class="3" />
 </resources>
-<!-- vendor-id="4617"  = 0x1209 decimal -->
-<!-- product-id="53251" = 0xD003 decimal -->
